@@ -11,7 +11,7 @@ app.use(express.json());
 app.post('/proxy', async (req, res) => {
     const { url, data } = req.body;
 
-    console.log('Incoming Request:', { url, data });
+    console.log('Incoming Request:', JSON.stringify({ url, data }, null, 4));
 
     if (!url) {
         return res.status(400).send({ error: 'URL is required' });
@@ -39,3 +39,4 @@ app.post('/proxy', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`CORS Proxy running on port ${PORT}`);
 });
+
