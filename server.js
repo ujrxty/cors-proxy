@@ -10,6 +10,14 @@ app.use(express.json());
 // Proxy endpoint
 app.post('/proxy', async (req, res) => {
     const { url, data, method } = req.body;
+    console.log("📥 Incoming proxy request");
+    console.log("➡️ Target URL:", url);
+    console.log("➡️ Method:", method);
+
+    if (data) {
+        console.log("📦 Payload:");
+        console.log(JSON.stringify(data, null, 2));
+    }
     if (!url) return res.status(400).json({ error: "URL required" });
 
     const startTime = Date.now();
