@@ -9,16 +9,16 @@ app.use(express.json());
 
 // Proxy endpoint
 app.post('/proxy', async (req, res) => {
-    const { url, data } = req.body;
+    const { url, data, method } = req.body;
     if (!url) return res.status(400).json({ error: "URL required" });
 
     const startTime = Date.now();
 
     try {
         const response = await fetch(url, {
-            method: "POST",
+            method: method || "POST",
             headers: { "Content-Type": "application/json" },
-            body: Object.keys(data || {}).length ? JSON.stringify(data) : undefined
+            body: method === "GET" ? undefined : JSON.stringify(data || {})
         });
 
         const rawBody = await response.text();
@@ -44,6 +44,7 @@ app.post('/proxy', async (req, res) => {
         });
     }
 });
+
 
 
 app.listen(PORT, () => {
