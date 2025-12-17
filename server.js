@@ -9,51 +9,32 @@ app.use(express.json());
 
 // Proxy endpoint
 app.post('/proxy', async (req, res) => {
-    const { url, data, method } = req.body;
-    console.log("📥 Incoming proxy request");
-    console.log("➡️ Target URL:", url);
-    console.log("➡️ Method:", method);
+    const { url, data } = req.body;
 
-    if (data) {
-        console.log("📦 Payload:");
-        console.log(JSON.stringify(data, null, 2));
+    console.log('Incoming Request:', { url, data });
+
+    if (!url) {
+        return res.status(400).send({ error: 'URL is required' });
     }
-    if (!url) return res.status(400).json({ error: "URL required" });
-
-    const startTime = Date.now();
 
     try {
         const response = await fetch(url, {
-            method: method || "POST",
+            method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: method === "GET" ? undefined : JSON.stringify(data || {})
+            body: JSON.stringify(data)
         });
 
-        const rawBody = await response.text();
-        const responseTime = Date.now() - startTime;
+        const responseBody = await response.text();
 
-        let parsedBody = null;
-        try {
-            parsedBody = rawBody ? JSON.parse(rawBody) : null;
-        } catch {
-            parsedBody = rawBody;
-        }
+        console.log("Response from target API:", responseBody);
 
-        res.json({
-            http_status: response.status,
-            content_type: response.headers.get("content-type"),
-            response_time_ms: responseTime,
-            body: parsedBody
-        });
+        res.send(responseBody);
 
     } catch (error) {
-        res.status(500).json({
-            error: error.message
-        });
+        console.error("Proxy Error:", error);
+        res.status(500).send({ error: error.toString() });
     }
 });
-
-
 
 app.listen(PORT, () => {
     console.log(`CORS Proxy running on port ${PORT}`);
